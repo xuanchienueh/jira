@@ -83,7 +83,7 @@ const RenderMember = ({ cell, row, ...props }) => {
                   </tr>
                 </thead>
                 <tbody>
-                  {memberOfProject.map((member) => (
+                  {memberOfProject?.map((member) => (
                     <tr key={member.userId}>
                       <td>{member.userId}</td>
                       <td>{member.name}</td>

@@ -168,6 +168,7 @@ function* getMemberInProject(action) {
     let result = yield call(() => getUserByProjectIdSV(action.payload));
     yield put({ type: constants.GET_MEMBER_BY_PROJECT_ID, payload: result.data.content });
   } catch (errors) {
+    yield put({ type: constants.GET_MEMBER_BY_PROJECT_ID, payload: [] });
     console.log("get member in project fail", errors);
   }
 }
