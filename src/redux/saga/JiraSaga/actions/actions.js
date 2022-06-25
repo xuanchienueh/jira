@@ -14,6 +14,7 @@ import { HideLoading, ShowLoading } from "redux/loading/loadingReducer";
 import store from "redux/configStore";
 import { getUserByProjectIdSV, getUserSV, loginService } from "services/userServices";
 import { removeUserFromProjectSV } from "services/projectService";
+import { getAllPrioritySV } from "services/createTaskService";
 
 //Quản lý các action saga
 function* login(action) {
@@ -190,4 +191,17 @@ function* removeUserFromProject({ payload }) {
 
 export function* removeUserFromProjectSaga() {
   yield takeLatest(constants.REMOVE_USER_FROM_PROJECT_SAGA_API, removeUserFromProject);
+}
+
+function* getAllPriority() {
+  try {
+    let result = yield call(() => getAllPrioritySV());
+    yield put({ type: constants.GET_ALL_PRIORITY, payload: result.data.content });
+  } catch (errors) {
+    console.log("get priority fail", errors);
+  }
+}
+
+export function* getAllPrioritySaga() {
+  yield takeLatest(constants.GET_ALL_PRIORITY_SAGA_API, getAllPriority);
 }

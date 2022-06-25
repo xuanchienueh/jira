@@ -16,3 +16,7 @@ html *::-webkit-scrollbar {
     width: 90% !important;
     max-width: none !important;
 }
+
+.create-task .progress { 
+  height: 20px !important;
+}

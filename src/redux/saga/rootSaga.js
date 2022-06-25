@@ -13,5 +13,6 @@ export default function* rootSaga() {
     actionSagaJira.assignUserProjectSaga(),
     actionSagaJira.getMemberInProjectSaga(),
     actionSagaJira.removeUserFromProjectSaga(),
+    actionSagaJira.getAllPrioritySaga(),
   ]);
 }

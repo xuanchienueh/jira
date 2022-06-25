@@ -15,7 +15,7 @@ function Main() {
   useEffect(() => {
     dispatch({ type: GET_DETAIL_PROJECT_SAGA_API, payload: projectId });
     return () => {};
-  }, []);
+  }, [projectId]);
 
   return (
     <div className="main">
@@ -23,7 +23,7 @@ function Main() {
       <h3>{detailProject.projectName}</h3>
       <InfoMain detailProject={detailProject} />
 
-      <ContentMain />
+      <ContentMain detailProject={detailProject} />
     </div>
   );
 }

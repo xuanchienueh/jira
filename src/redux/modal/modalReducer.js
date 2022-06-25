@@ -19,6 +19,7 @@ const modalReducer = (state = initialState, { type, payload }) => {
       state.headerModal = payload.headerModal;
       state.dialogClassName = payload.dialogClassName;
       return { ...state, size: payload.size };
+
     case CLOSE_MODAL:
       state.show = false;
       return { ...state };

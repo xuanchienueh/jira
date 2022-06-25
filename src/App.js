@@ -28,7 +28,6 @@ function App() {
     <div className="App">
       <Loading />
       <ModalComponent />
-      {/* <BrowserRouter> */}
       <HistoryRouter history={history}>
         <Routes>
           <Route path="/" element={<HomeTemplate />}>
@@ -47,7 +46,6 @@ function App() {
           </Route>
         </Routes>
       </HistoryRouter>
-      {/* </BrowserRouter> */}
     </div>
   );
 }
