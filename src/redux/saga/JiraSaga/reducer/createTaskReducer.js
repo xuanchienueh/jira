@@ -1,13 +1,18 @@
-import { GET_ALL_PRIORITY } from "../actions/constName";
+import { GET_ALL_PRIORITY, GET_ALL_TASK_TYPE } from "../actions/constName";
 
 const initialState = {
-  priority: [],
+  priorityAll: [],
+  taskTypes: [],
 };
 
 const createTaskReducer = (state = initialState, { type, payload }) => {
   switch (type) {
     case GET_ALL_PRIORITY:
-      return { ...state, priority: payload };
+      return { ...state, priorityAll: payload };
+
+    case GET_ALL_TASK_TYPE: {
+      return { ...state, taskTypes: payload };
+    }
 
     default:
       return state;

@@ -14,5 +14,7 @@ export default function* rootSaga() {
     actionSagaJira.getMemberInProjectSaga(),
     actionSagaJira.removeUserFromProjectSaga(),
     actionSagaJira.getAllPrioritySaga(),
+    actionSagaJira.getAllTaskTypeSaga(),
+    actionSagaJira.createTaskSaga(),
   ]);
 }

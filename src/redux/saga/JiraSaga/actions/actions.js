@@ -14,7 +14,8 @@ import { HideLoading, ShowLoading } from "redux/loading/loadingReducer";
 import store from "redux/configStore";
 import { getUserByProjectIdSV, getUserSV, loginService } from "services/userServices";
 import { removeUserFromProjectSV } from "services/projectService";
-import { getAllPrioritySV } from "services/createTaskService";
+import { createTaskSV, getAllPrioritySV, getAllTaskTypeSV } from "services/createTaskService";
+import { CLOSE_MODAL } from "redux/modal/modalReducer";
 
 //Quản lý các action saga
 function* login(action) {
@@ -196,6 +197,7 @@ export function* removeUserFromProjectSaga() {
 function* getAllPriority() {
   try {
     let result = yield call(() => getAllPrioritySV());
+    console.log("get all priority", result);
     yield put({ type: constants.GET_ALL_PRIORITY, payload: result.data.content });
   } catch (errors) {
     console.log("get priority fail", errors);
@@ -204,4 +206,32 @@ function* getAllPriority() {
 
 export function* getAllPrioritySaga() {
   yield takeLatest(constants.GET_ALL_PRIORITY_SAGA_API, getAllPriority);
+}
+
+function* getAllTaskType() {
+  try {
+    let result = yield call(() => getAllTaskTypeSV());
+    yield put({ type: constants.GET_ALL_TASK_TYPE, payload: result.data.content });
+  } catch (errors) {
+    console.log("get status fail", errors);
+  }
+}
+
+export function* getAllTaskTypeSaga() {
+  yield takeLatest(constants.GET_ALL_TASK_TYPE_SAGA_API, getAllTaskType);
+}
+
+function* createTask({ payload }) {
+  try {
+    let result = yield call(() => createTaskSV(payload));
+    if (result.status === 200) yield put({ type: CLOSE_MODAL });
+    console.log("create task result", result);
+    yield put({ type: constants.CREATE_TASK, payload: result.data.content });
+  } catch (errors) {
+    console.log("create task fail", errors);
+  }
+}
+
+export function* createTaskSaga() {
+  yield takeLatest(constants.CREATE_TASK_SAGA_API, createTask);
 }
