@@ -1,6 +1,19 @@
 import axios from "axios";
 import { DOMAIN_API, TokenCybersoft, TOKEN_JIRA } from "../utils/config";
 
+const api = axios.create({ baseURL: DOMAIN_API });
+
+api.interceptors.request.use(
+  (config) => {
+    config.headers = {
+      ...config.headers,
+      TokenCybersoft: TokenCybersoft,
+    };
+    return config;
+  },
+  (error) => {}
+);
+
 export const Post = (url = "", data) => {
   return axios({
     method: "POST",

@@ -1,69 +1,77 @@
-import React, { useRef, useEffect, useState, useCallback, useMemo } from "react";
+import React, { useRef, useEffect, useState, useMemo } from "react";
 import Select from "react-select";
 import { Editor } from "@tinymce/tinymce-react";
-import { Field, Form, Formik, yupToFormErrors } from "formik";
+import { Field, Form, Formik } from "formik";
 import * as yup from "yup";
 import { ProgressBar } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import * as CONST from "redux/saga/JiraSaga/actions/constName";
 import debounce from "hooks/useDebounce";
 
-let optionUser = [{ value: "chocolate", label: "Chocolate" }];
-let initialValues = {
-  listUserAsign: [],
-  taskName: "",
-  description: "",
-  statusId: 1,
-  originalEstimate: 0,
-  timeTrackingSpent: 0,
-  timeTrackingRemaining: 0,
-  projectId: "",
-  typeId: "",
-  priorityId: "",
-};
 const createTaskSchema = yup.object().shape({
   taskName: yup.string().required("Task name is required"),
   description: yup.string().required("Description is required"),
-  // statusId: yup.string().required("Status is required"),
+  statusId: yup.string().required("Status is required"),
   originalEstimate: yup
     .number()
     .required("Original estimate is required")
     .min(1, "Original estimate must be greater than 0"),
-  timeTrackingSpent: yup
-    .number()
-    .required("Time tracking spent is required")
-    .min(1, "Time tracking spent must be greater than 0"),
-  projectId: yup.string().required("Project is required"),
+  timeTrackingSpent: yup.number().required("Time tracking spent is required").min(0, "Number > 0"),
+  timeTrackingRemaining: yup.number().min(0, "Error"),
   typeId: yup.string().required("Type is required"),
   priorityId: yup.string().required("Priority is required"),
-  // listUserAsign: yup.array().required("User asign is required"),
 });
 
 function CreateTask() {
   const editorRef = useRef(null);
   const dispatch = useDispatch();
   const [validateAddMember, setValidateAddMember] = useState([null]);
-  const [searchUser, setSearchUser] = useState(null);
+  const [projectIdSelected, setProjectIdSelected] = useState(null);
   const { allProject } = useSelector((state) => state.ProjectReducer);
-  const { priorityAll, taskTypes } = useSelector((state) => state.createTaskReducer);
-  const { listUser } = useSelector((state) => state.UserReducer);
-  optionUser = listUser?.map((user) => ({ value: user.userId, label: user.name }));
+  const { priorityAll, taskTypes, statusAll } = useSelector((state) => state.createTaskReducer);
+  const { infoUser, memberOfProject } = useSelector((state) => state.UserReducer);
 
-  // console.log(priorityAll);
+  let allProjectOfUserLogined = allProject?.filter((project) => project.creator.id === infoUser.id);
+
+  // console.log(3);
+  let optionUser = allProjectOfUserLogined[0]?.members.map((member) => ({
+    value: member.userId,
+    label: member.name,
+  }));
+
+  let optionUserOnChange = memberOfProject.map((member) => ({
+    value: member.userId,
+    label: member.name,
+  }));
+
+  /*  */
+  let initialValues = {
+    listUserAsign: [],
+    taskName: "",
+    description: "",
+    statusId: statusAll[0]?.statusId,
+    originalEstimate: 0,
+    timeTrackingSpent: 0,
+    timeTrackingRemaining: 0,
+    projectId: allProjectOfUserLogined[0]?.id,
+    typeId: taskTypes[0]?.id,
+    priorityId: priorityAll[0]?.priorityId,
+  };
 
   //--
   useEffect(() => {
     dispatch({ type: CONST.GET_ALL_PROJECT_SAGA_API, payload: undefined });
     dispatch({ type: CONST.GET_ALL_PRIORITY_SAGA_API });
     dispatch({ type: CONST.GET_ALL_TASK_TYPE_SAGA_API });
-    return () => {};
+    dispatch({ type: CONST.GET_ALL_STATUS_SAGA_API });
   }, []);
 
-  //--
+  //---
   useEffect(() => {
-    dispatch({ type: CONST.GET_USER_SAGA_API, payload: searchUser });
-    return () => {};
-  }, [searchUser]);
+    if (projectIdSelected) {
+      dispatch({ type: CONST.GET_MEMBER_BY_PROJECT_ID_SAGA_API, payload: projectIdSelected });
+    }
+  }, [projectIdSelected]);
 
   const handleEditorChange = (content, propsFormik) => {
     propsFormik.setFieldValue("description", content);
@@ -74,13 +82,6 @@ function CreateTask() {
     propsFormik.setFieldValue("listUserAsign", value);
     setValidateAddMember(value);
   };
-
-  const startSearchUser = debounce((input) => setSearchUser(input), 1000);
-
-  const filterOptions = useCallback(({ label, value, data = "" }, input) => {
-    if (input) startSearchUser(input);
-    return true;
-  }, []);
 
   //
   return (
@@ -108,7 +109,7 @@ function CreateTask() {
                 <div className="text-danger">{errors.taskName}</div>
               )}
             </div>
-            <div className="form-row">
+            <div className="form-row mb-3">
               <div className="col">
                 <label>Project</label>
                 <Field
@@ -116,8 +117,12 @@ function CreateTask() {
                   component="select"
                   className="form-control"
                   value={values.projectId}
+                  onChange={(e) => {
+                    setProjectIdSelected(+e.target.value);
+                    return props.setFieldValue("projectId", e.target.value);
+                  }}
                 >
-                  {allProject?.map((project, i) => (
+                  {allProjectOfUserLogined?.map((project, i) => (
                     <option key={i} value={project.id}>
                       {project.projectName}
                     </option>
@@ -132,14 +137,13 @@ function CreateTask() {
                 <label>Add member</label>
                 <Select
                   closeMenuOnSelect={false}
-                  // components={animatedComponents}
                   placeholder="Enter member's name"
                   isMulti={true}
                   defaultValue={[]}
-                  options={optionUser}
-                  filterOption={filterOptions}
+                  options={projectIdSelected ? optionUserOnChange : optionUser}
+                  // filterOption={filterOptions}
                   isSearchable={true}
-                  onBlur={() => setSearchUser(undefined)}
+                  // onBlur={() => }
                   onKeyDown={(e) => console.log("onkeydown", e.target.value)}
                   name="listUserAsign"
                   onChange={(value) => handleChangeAddMember(value, props)}
@@ -150,15 +154,21 @@ function CreateTask() {
               </div>
             </div>
 
-            <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="">Status</label>
+              <Field name="statusId" component="select" className="form-control">
+                {statusAll?.map((status, i) => (
+                  <option key={i} value={status.statusId}>
+                    {status.statusName}
+                  </option>
+                ))}
+              </Field>
+            </div>
+
+            <div className="form-row mb-3">
               <div className="col">
                 <label>Task type</label>
-                <Field
-                  name="typeId"
-                  component="select"
-                  className="form-control"
-                  // value={values.typeId}
-                >
+                <Field name="typeId" component="select" className="form-control">
                   {taskTypes?.map((taskType, i) => (
                     <option key={i} value={taskType.id}>
                       {taskType.taskType}{" "}
@@ -187,7 +197,7 @@ function CreateTask() {
             <div className="form-row">
               <div className="col">
                 <label>Original Estimate</label>
-                <Field type="number" name="originalEstimate" min={0} className="form-control" />
+                <Field type="number" name="originalEstimate" className="form-control" />
                 {errors.originalEstimate && touched.originalEstimate && (
                   <div className="text-danger">{errors.originalEstimate}</div>
                 )}
@@ -196,24 +206,29 @@ function CreateTask() {
                 <div className="row">
                   <div className="col-6">
                     <label htmlFor="">Time spent(hours)</label>
-                    <Field
-                      type="number"
-                      min={0}
-                      name="timeTrackingSpent"
-                      className="form-control"
-                      placeholder="hours"
-                    />
+                    <Field name="timeTrackingSpent">
+                      {({ field }) => (
+                        <input
+                          type="number"
+                          {...field}
+                          className="form-control"
+                          placeholder="hours"
+                        />
+                      )}
+                    </Field>
                     {errors.timeTrackingSpent && touched.timeTrackingSpent && (
                       <div className="text-danger">{errors.timeTrackingSpent}</div>
                     )}
                   </div>
                   <div className="col-6">
                     <label htmlFor="">Time remaining(hours)</label>
-                    <input
+                    <Field
+                      name="timeTrackingRemaining"
                       value={values.originalEstimate - values.timeTrackingSpent}
                       className="form-control"
                       readOnly
                     />
+                    {true && <div className="text-danger">{errors.timeTrackingRemaining}</div>}
                   </div>
                 </div>
               </div>
@@ -277,31 +292,6 @@ function CreateTask() {
 }
 
 export default CreateTask;
-
-function selecMuti() {
-  return (
-    <div className="dropdown">
-      <button type="button" className="btn dropdown-toggle" data-toggle="dropdown">
-        Project
-      </button>
-
-      <div className="dropdown-menu" role="group">
-        <label className="dropdown-item">
-          <Field type="checkbox" name="projectId" value="One" />
-          One
-        </label>
-        <label className="dropdown-item">
-          <Field type="checkbox" name="projectId" value="Two" />
-          Two
-        </label>
-        <label className="dropdown-item">
-          <Field type="checkbox" name="projectId" value="Three" />
-          Three
-        </label>
-      </div>
-    </div>
-  );
-}
 
 /* function SelectUser() {
   return (

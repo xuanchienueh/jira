@@ -1,5 +1,4 @@
 import { call, delay, fork, take, takeEvery, takeLatest, put, select } from "redux-saga/effects";
-// import { loginService } from "../../../../services/JiraService";
 import {
   assignUserProjectSv,
   createProjectSV,
@@ -7,14 +6,23 @@ import {
   getAllProjectSV,
   getCategorySV,
   getDetailProjectSV,
+  getTaskDetailSV,
   updateProjectSV,
+  removeUserFromProjectSV,
+  updateStatusSV,
+  updatePrioritySV,
+  updateEstimateSV,
 } from "services/projectService";
 import * as constants from "./constName";
 import { HideLoading, ShowLoading } from "redux/loading/loadingReducer";
 import store from "redux/configStore";
 import { getUserByProjectIdSV, getUserSV, loginService } from "services/userServices";
-import { removeUserFromProjectSV } from "services/projectService";
-import { createTaskSV, getAllPrioritySV, getAllTaskTypeSV } from "services/createTaskService";
+import {
+  createTaskSV,
+  getAllPrioritySV,
+  getAllStatusSV,
+  getAllTaskTypeSV,
+} from "services/createTaskService";
 import { CLOSE_MODAL } from "redux/modal/modalReducer";
 
 //Quản lý các action saga
@@ -49,13 +57,13 @@ export const getCategory = async (dispatch) => {
 
 function* createProject(action) {
   try {
-    yield put({ type: ShowLoading });
+    // yield put({ type: ShowLoading });
     let result = yield call(() => {
       return createProjectSV(action.payload);
     });
 
-    yield delay(100);
-    yield put({ type: HideLoading });
+    yield delay(10);
+    // yield put({ type: HideLoading });
   } catch (err) {
     yield put({ type: HideLoading });
     console.log("create project fail", err);
@@ -71,7 +79,7 @@ function* getAllProject(action) {
     yield put({ type: ShowLoading });
     let result = yield call(() => getAllProjectSV(action.payload));
     yield put({ type: constants.GET_ALL_PROJECT, payload: result.data.content });
-    yield delay(500);
+    // yield delay(500);
     yield put({ type: HideLoading });
   } catch (err) {
     yield put({ type: HideLoading });
@@ -88,10 +96,11 @@ function* deleteProject(action) {
   try {
     yield put({ type: ShowLoading });
     let result = yield call(() => deleteProjectSV(action.payload));
+    const { ProjectReducer } = store.getState();
 
     if (result.status === 200) {
       yield put({ type: constants.DELETE_PROJECT, payload: result.data.content[0] });
-      yield put({ type: constants.GET_ALL_PROJECT_SAGA_API, payload: undefined });
+      yield put({ type: constants.GET_ALL_PROJECT_SAGA_API, payload: ProjectReducer.keySearchPJ });
     }
     yield delay(300);
     yield put({ type: HideLoading });
@@ -197,7 +206,6 @@ export function* removeUserFromProjectSaga() {
 function* getAllPriority() {
   try {
     let result = yield call(() => getAllPrioritySV());
-    console.log("get all priority", result);
     yield put({ type: constants.GET_ALL_PRIORITY, payload: result.data.content });
   } catch (errors) {
     console.log("get priority fail", errors);
@@ -234,4 +242,73 @@ function* createTask({ payload }) {
 
 export function* createTaskSaga() {
   yield takeLatest(constants.CREATE_TASK_SAGA_API, createTask);
+}
+
+function* getAllStatus() {
+  try {
+    let { status, data } = yield call(() => getAllStatusSV());
+    if (status === 200) yield put({ type: constants.GET_ALL_STATUS, payload: data.content });
+  } catch (errors) {
+    console.log("get status fail", errors);
+  }
+}
+
+export function* getAllStatusSaga() {
+  yield takeLatest(constants.GET_ALL_STATUS_SAGA_API, getAllStatus);
+}
+
+function* getTaskDetail(action) {
+  try {
+    let { status, data } = yield call(() => getTaskDetailSV(action.payload));
+    if (status === 200) {
+      yield put({ type: constants.GET_TASK_DETAIL, payload: data.content });
+    }
+  } catch (errors) {
+    console.log("get task detail fail", errors);
+  }
+}
+
+export function* getTaskDetailSaga() {
+  yield takeLatest(constants.GET_TASK_DETAIL_SAGA_API, getTaskDetail);
+}
+
+function* updateStatus({ payload }) {
+  try {
+    let { status } = yield call(() => updateStatusSV(payload));
+    if (status === 200)
+      yield put({ type: constants.GET_TASK_DETAIL_SAGA_API, payload: payload.taskId });
+  } catch (errors) {
+    console.log("update status fail", errors);
+  }
+}
+export function* updateStatusSaga() {
+  yield takeLatest(constants.UPDATE_STATUS_SAGA_API, updateStatus);
+}
+
+function* updatePriority({ payload }) {
+  try {
+    let { status } = yield call(() => updatePrioritySV(payload));
+    if (status === 200)
+      yield put({ type: constants.GET_TASK_DETAIL_SAGA_API, payload: payload.taskId });
+  } catch (errors) {
+    console.log("update priority fail", errors);
+  }
+}
+export function* updatePrioritySaga() {
+  yield takeLatest(constants.UPDATE_PRIORITY_SAGA_API, updatePriority);
+}
+
+function* updateEstimate({ payload }) {
+  try {
+    let { status } = yield call(() => updateEstimateSV(payload));
+    console.log(status);
+    if (status === 200)
+      yield put({ type: constants.GET_TASK_DETAIL_SAGA_API, payload: payload.taskId });
+  } catch (errors) {
+    console.log("update estimate fail", errors);
+  }
+}
+
+export function* updateEstimateSaga() {
+  yield takeLatest(constants.UPDATE_ESTIMATE_SAGA_API, updateEstimate);
 }

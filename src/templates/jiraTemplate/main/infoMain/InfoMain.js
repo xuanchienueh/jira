@@ -10,7 +10,7 @@ function renderMember(members) {
 
 function InfoMain({ detailProject }) {
   const { members } = detailProject;
-  console.log(detailProject);
+  // console.log(detailProject);
   ///--
   return (
     <div className="info" style={{ display: "flex" }}>

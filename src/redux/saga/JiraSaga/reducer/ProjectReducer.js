@@ -3,6 +3,7 @@ import {
   GET_ALL_PROJECT,
   GET_CATEGORY,
   GET_DETAIL_PROJECT,
+  GET_TASK_DETAIL,
   KEY_SEARCH_PROJECT,
 } from "../actions/constName";
 
@@ -11,6 +12,7 @@ const initialState = {
   allProject: [],
   detailProject: {},
   keySearchPJ: undefined,
+  taskDetail: {},
   // addingUserInProject: false,
 };
 
@@ -35,6 +37,10 @@ const ProjectReducer = (state = initialState, { type, payload }) => {
 
     case GET_DETAIL_PROJECT: {
       return { ...state, detailProject: payload };
+    }
+
+    case GET_TASK_DETAIL: {
+      return { ...state, taskDetail: payload };
     }
 
     default:

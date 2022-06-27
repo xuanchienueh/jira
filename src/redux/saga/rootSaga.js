@@ -16,5 +16,10 @@ export default function* rootSaga() {
     actionSagaJira.getAllPrioritySaga(),
     actionSagaJira.getAllTaskTypeSaga(),
     actionSagaJira.createTaskSaga(),
+    actionSagaJira.getAllStatusSaga(),
+    actionSagaJira.getTaskDetailSaga(),
+    actionSagaJira.updateStatusSaga(),
+    actionSagaJira.updatePrioritySaga(),
+    actionSagaJira.updateEstimateSaga(),
   ]);
 }

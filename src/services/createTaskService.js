@@ -14,3 +14,7 @@ export const getAllTaskTypeSV = () => {
 export const createTaskSV = (data) => {
   return Post(`Project/createTask`, data);
 };
+
+export const getAllStatusSV = () => {
+  return Get(`Status/getAll`);
+};

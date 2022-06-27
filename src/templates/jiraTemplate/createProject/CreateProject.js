@@ -4,7 +4,7 @@ import { Editor } from "@tinymce/tinymce-react";
 import { withFormik } from "formik";
 import * as Yup from "yup";
 import { getCategory } from "redux/saga/JiraSaga/actions/actions";
-import * as constants from "redux/saga/JiraSaga/actions/constName";
+import * as CONST from "redux/saga/JiraSaga/actions/constName";
 
 function CreateProject(props) {
   const dispatch = useDispatch();
@@ -12,9 +12,27 @@ function CreateProject(props) {
   const { category } = useSelector((state) => state.ProjectReducer);
   const { values, touched, errors, handleChange, handleBlur, handleSubmit, setFieldValue } = props;
 
+  let createPJ = () => {
+    let projectName =
+      "nếu muốn xóa thì xóa cái này nè " +
+      Math.floor(Math.random() * 1000) +
+      Math.floor(Math.random() * 100);
+    let description = "Project " + Math.floor(Math.random() * 1000);
+    let categoryId = Math.floor(Math.random() * 3) + 1;
+    let values = { projectName, description, categoryId };
+    dispatch({ type: CONST.CREATE_PROJECT_SAGA_API, payload: values });
+    return values.projectName;
+  };
+
   useEffect(() => {
     getCategory(dispatch);
-    return () => {};
+    /* let timerId = setInterval(() => {
+      let kq = createPJ();
+      console.log(kq);
+    }, 3000);
+    return () => {
+      clearInterval(timerId);
+    }; */
   }, []);
 
   const handleEditorChange = (content, editor) => {
@@ -102,7 +120,7 @@ const handleForm = withFormik({
     projectName: Yup.string().required("Trường này không được để trống!"),
   }),
   handleSubmit: (values, { resetForm, props }) => {
-    props.dispatch({ type: constants.CREATE_PROJECT_SAGA_API, payload: values });
+    props.dispatch({ type: CONST.CREATE_PROJECT_SAGA_API, payload: values });
     // resetForm(true);
   },
 
