@@ -12,6 +12,11 @@ import {
   updateStatusSV,
   updatePrioritySV,
   updateEstimateSV,
+  updateTimeTrackingSV,
+  removeUserFromTaskSV,
+  assignUserTaskSv,
+  updataDecriptionSV,
+  updateTaskSV,
 } from "services/projectService";
 import * as constants from "./constName";
 import { HideLoading, ShowLoading } from "redux/loading/loadingReducer";
@@ -24,6 +29,10 @@ import {
   getAllTaskTypeSV,
 } from "services/createTaskService";
 import { CLOSE_MODAL } from "redux/modal/modalReducer";
+import {
+  GET_DETAIL_PROJECT_SAGA_API,
+  ASSIGN_USER_TASK_SAGA_API,
+} from "redux/saga/JiraSaga/actions/constName";
 
 //Quản lý các action saga
 function* login(action) {
@@ -277,6 +286,7 @@ function* updateStatus({ payload }) {
     let { status } = yield call(() => updateStatusSV(payload));
     if (status === 200)
       yield put({ type: constants.GET_TASK_DETAIL_SAGA_API, payload: payload.taskId });
+    yield put({ type: constants.GET_DETAIL_PROJECT_SAGA_API, payload: payload.projectId });
   } catch (errors) {
     console.log("update status fail", errors);
   }
@@ -301,7 +311,6 @@ export function* updatePrioritySaga() {
 function* updateEstimate({ payload }) {
   try {
     let { status } = yield call(() => updateEstimateSV(payload));
-    console.log(status);
     if (status === 200)
       yield put({ type: constants.GET_TASK_DETAIL_SAGA_API, payload: payload.taskId });
   } catch (errors) {
@@ -311,4 +320,76 @@ function* updateEstimate({ payload }) {
 
 export function* updateEstimateSaga() {
   yield takeLatest(constants.UPDATE_ESTIMATE_SAGA_API, updateEstimate);
+}
+
+function* updateTimeTracking({ payload }) {
+  try {
+    let { status } = yield call(() => updateTimeTrackingSV(payload));
+    if (status === 200) yield put({ type: constants.UPDATE_ESTIMATE_SAGA_API, payload });
+  } catch (errors) {
+    console.log("update time tracking fail", errors);
+  }
+}
+export function* updateTimeTrackingSaga() {
+  yield takeLatest(constants.UPDATE_TIME_TRACKING_SAGA_API, updateTimeTracking);
+}
+
+function* removeUserFromTask({ payload }) {
+  console.log(payload);
+  try {
+    let { status } = yield call(() => removeUserFromTaskSV(payload));
+    if (status === 200)
+      yield put({ type: constants.GET_TASK_DETAIL_SAGA_API, payload: payload.taskId });
+  } catch (errors) {
+    console.log("remove user from task fail", errors);
+  }
+}
+
+export function* removeUserFromTaskSaga() {
+  yield takeLatest(constants.REMOVE_USER_FROM_TASK_SAGA_API, removeUserFromTask);
+}
+
+function* assignUserTask({ payload }) {
+  try {
+    let { status } = yield call(() => assignUserTaskSv(payload));
+    // console.log(result);
+    console.log("thanh cong");
+    if (status === 200)
+      yield put({ type: constants.GET_TASK_DETAIL_SAGA_API, payload: payload.taskId });
+  } catch (errors) {
+    console.log("add user to task fail", errors);
+  }
+}
+
+export function* assignUserTaskSaga() {
+  yield takeLatest(constants.ASSIGN_USER_TASK_SAGA_API, assignUserTask);
+}
+
+function* updataDecription({ payload }) {
+  try {
+    let { status } = yield call(() => updataDecriptionSV(payload));
+    if (status === 200)
+      yield put({ type: constants.GET_TASK_DETAIL_SAGA_API, payload: payload.taskId });
+  } catch (errors) {
+    console.log("update description fail", errors);
+  }
+}
+
+export function* updataDecriptionSaga() {
+  yield takeLatest(constants.UPDATA_DESCRIPTION_SAGA_API, updataDecription);
+}
+
+function* updateTask({ payload }) {
+  try {
+    let { status } = yield call(() => updateTaskSV(payload));
+    console.log("update task result", status);
+    if (status === 200)
+      yield put({ type: constants.GET_TASK_DETAIL_SAGA_API, payload: payload.taskId });
+  } catch (errors) {
+    console.log("update task fail", errors);
+  }
+}
+
+export function* updateTaskSaga() {
+  yield takeLatest(constants.UPDATE_TASK_SAGA_API, updateTask);
 }

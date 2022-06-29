@@ -13,7 +13,6 @@ const initialState = {
   detailProject: {},
   keySearchPJ: undefined,
   taskDetail: {},
-  // addingUserInProject: false,
 };
 
 const ProjectReducer = (state = initialState, { type, payload }) => {

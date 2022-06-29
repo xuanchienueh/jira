@@ -21,5 +21,10 @@ export default function* rootSaga() {
     actionSagaJira.updateStatusSaga(),
     actionSagaJira.updatePrioritySaga(),
     actionSagaJira.updateEstimateSaga(),
+    actionSagaJira.updateTimeTrackingSaga(),
+    actionSagaJira.removeUserFromTaskSaga(),
+    actionSagaJira.assignUserTaskSaga(),
+    actionSagaJira.updataDecriptionSaga(),
+    actionSagaJira.updateTaskSaga(),
   ]);
 }
