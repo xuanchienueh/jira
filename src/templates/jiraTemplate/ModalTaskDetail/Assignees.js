@@ -69,48 +69,32 @@ function AddUserInTask({ taskDetail }) {
     return () => {};
   }, []);
 
-  let taskClone = {
-    listUserAsign: taskDetail.assigness,
-    taskId: taskDetail.taskId,
-    taskName: taskDetail.taskName,
-    description: taskDetail.description,
-    statusId: taskDetail.statusId,
-    originalEstimate: taskDetail.originalEstimate,
-    timeTrackingSpent: taskDetail.timeTrackingSpent,
-    timeTrackingRemaining: taskDetail.timeTrackingRemaining,
-    projectId: taskDetail.projectId,
-    typeId: taskDetail.typeId,
-    priorityId: taskDetail.priorityId,
-  };
-
   function addUserInTask(item) {
     item = item.userId;
-    let listUserAsign = taskClone.listUserAsign.map((user) => user.id);
+    let listUserAsign = taskDetail.assigness?.map((user) => user.id);
     listUserAsign.push(item);
     dispatch({
       type: UPDATE_TASK_SAGA_API,
-      payload: { ...taskClone, listUserAsign },
+      payload: { ...taskDetail, listUserAsign },
     });
 
     dispatch({ type: CLOSE_MODAL });
   }
 
   return (
-    <>
+    <div>
       <h4>List member of project:</h4>
-      <div>
-        {memberNotInTask?.map((item, i) => (
-          <div
-            key={i}
-            className="d-flex align-items-center mb-3"
-            role="button"
-            onClick={() => addUserInTask(item)}
-          >
-            <img className="rounded-circle" src={item.avatar} alt={item.name} width={30} />
-            <span className="ml-3">{item.name}</span>
-          </div>
-        ))}
-      </div>
-    </>
+      {memberNotInTask?.map((item, i) => (
+        <div
+          key={i}
+          className="d-flex align-items-center mb-3"
+          role="button"
+          onClick={() => addUserInTask(item)}
+        >
+          <img className="rounded-circle" src={item.avatar} alt={item.name} width={30} />
+          <span className="ml-3">{item.name}</span>
+        </div>
+      ))}
+    </div>
   );
 }

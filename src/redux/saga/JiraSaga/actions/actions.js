@@ -105,11 +105,11 @@ function* deleteProject(action) {
   try {
     yield put({ type: ShowLoading });
     let result = yield call(() => deleteProjectSV(action.payload));
-    const { ProjectReducer } = store.getState();
+    const { keySearchPJ } = yield select((state) => state.ProjectReducer);
 
     if (result.status === 200) {
       yield put({ type: constants.DELETE_PROJECT, payload: result.data.content[0] });
-      yield put({ type: constants.GET_ALL_PROJECT_SAGA_API, payload: ProjectReducer.keySearchPJ });
+      yield put({ type: constants.GET_ALL_PROJECT_SAGA_API, payload: keySearchPJ });
     }
     yield delay(300);
     yield put({ type: HideLoading });
