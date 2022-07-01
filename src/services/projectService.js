@@ -12,7 +12,7 @@ export const updataDecriptionSV = (description) => Put(`Project/updateDescriptio
 export const updateTimeTrackingSV = (time) => Put(`Project/updateTimeTracking`, time);
 export const removeUserFromTaskSV = (user) => Post(`Project/removeUserFromTask`, user);
 export const assignUserTaskSv = (model = {}) => Post(`Project/assignUserTask`, model);
-
+export const removeTaskSV = (taskId) => Delete(`Project/removeTask?taskId=${taskId}`);
 export const getAllProjectSV = (keyword = undefined) => {
   if (keyword) return Get(`Project/getAllProject?keyword=${keyword}`);
   return Get(`Project/getAllProject`);
@@ -29,6 +29,4 @@ export const removeUserFromProjectSV = (model = { projectId: 0, userId: 0 }) => 
   return Post(`Project/removeUserFromProject`, model);
 };
 
-export const updateTaskSV = (model = {}) => {
-  return Post(`Project/updateTask`, model);
-};
+export const updateTaskSV = (model = {}) => Post(`Project/updateTask`, model);

@@ -26,5 +26,6 @@ export default function* rootSaga() {
     actionSagaJira.assignUserTaskSaga(),
     actionSagaJira.updataDecriptionSaga(),
     actionSagaJira.updateTaskSaga(),
+    actionSagaJira.insertCommentSaga(),
   ]);
 }

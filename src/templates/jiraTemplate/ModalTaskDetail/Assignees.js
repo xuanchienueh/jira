@@ -10,7 +10,7 @@ import { CLOSE_MODAL, OPEN_MODAL } from "redux/modal/modalReducer";
 function Assignees({ taskDetail }) {
   const dispatch = useDispatch();
   const deleteUserFromTask = (user) => {
-    let payload = { taskId: taskDetail.taskId, userId: user.id };
+    let payload = { ...taskDetail, taskId: taskDetail.taskId, userId: user.id };
     dispatch({ type: REMOVE_USER_FROM_TASK_SAGA_API, payload });
   };
 

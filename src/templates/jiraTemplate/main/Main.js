@@ -18,7 +18,7 @@ function Main() {
   }, [projectId]);
 
   return (
-    <div className="main">
+    <div className="main container">
       <HeaderMain detailProject={detailProject} />
       <h3>{detailProject.projectName}</h3>
       <InfoMain detailProject={detailProject} />

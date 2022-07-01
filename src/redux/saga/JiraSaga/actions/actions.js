@@ -1,4 +1,5 @@
 import { call, delay, fork, take, takeEvery, takeLatest, put, select } from "redux-saga/effects";
+import { alert } from "react-bootstrap-confirmation";
 import {
   assignUserProjectSv,
   createProjectSV,
@@ -17,6 +18,7 @@ import {
   assignUserTaskSv,
   updataDecriptionSV,
   updateTaskSV,
+  removeTaskSV,
 } from "services/projectService";
 import * as constants from "./constName";
 import { HideLoading, ShowLoading } from "redux/loading/loadingReducer";
@@ -29,10 +31,7 @@ import {
   getAllTaskTypeSV,
 } from "services/createTaskService";
 import { CLOSE_MODAL } from "redux/modal/modalReducer";
-import {
-  GET_DETAIL_PROJECT_SAGA_API,
-  ASSIGN_USER_TASK_SAGA_API,
-} from "redux/saga/JiraSaga/actions/constName";
+import { deleteCommentSV, insertCommentSV, updateCommentSV } from "services/commentServices";
 
 //Quản lý các action saga
 function* login(action) {
@@ -47,6 +46,7 @@ function* login(action) {
     yield put({ type: HideLoading });
   } catch (errors) {
     yield put({ type: HideLoading });
+    alert("Tài khoản hoặc mật khẩu không đúng");
     console.log("tai khoan hoac mat khau không dung!", errors);
   }
 }
@@ -300,6 +300,7 @@ function* updatePriority({ payload }) {
     let { status } = yield call(() => updatePrioritySV(payload));
     if (status === 200)
       yield put({ type: constants.GET_TASK_DETAIL_SAGA_API, payload: payload.taskId });
+    yield put({ type: constants.GET_DETAIL_PROJECT_SAGA_API, payload: payload.projectId });
   } catch (errors) {
     console.log("update priority fail", errors);
   }
@@ -335,11 +336,11 @@ export function* updateTimeTrackingSaga() {
 }
 
 function* removeUserFromTask({ payload }) {
-  console.log(payload);
   try {
     let { status } = yield call(() => removeUserFromTaskSV(payload));
     if (status === 200)
       yield put({ type: constants.GET_TASK_DETAIL_SAGA_API, payload: payload.taskId });
+    yield put({ type: constants.GET_DETAIL_PROJECT_SAGA_API, payload: payload.projectId });
   } catch (errors) {
     console.log("remove user from task fail", errors);
   }
@@ -382,9 +383,9 @@ export function* updataDecriptionSaga() {
 function* updateTask({ payload }) {
   try {
     let { status } = yield call(() => updateTaskSV(payload));
-    console.log("update task result", status);
     if (status === 200)
       yield put({ type: constants.GET_TASK_DETAIL_SAGA_API, payload: payload.taskId });
+    yield put({ type: constants.GET_DETAIL_PROJECT_SAGA_API, payload: payload.projectId });
   } catch (errors) {
     console.log("update task fail", errors);
   }
@@ -393,3 +394,52 @@ function* updateTask({ payload }) {
 export function* updateTaskSaga() {
   yield takeLatest(constants.UPDATE_TASK_SAGA_API, updateTask);
 }
+
+function* insertComment({ payload }) {
+  try {
+    let { status, data } = yield call(() => insertCommentSV(payload));
+    if (status === 200)
+      yield put({ type: constants.GET_TASK_DETAIL_SAGA_API, payload: payload.taskId });
+  } catch (errors) {
+    console.log("insert comment fail", errors);
+  }
+}
+
+export function* insertCommentSaga() {
+  yield takeLatest(constants.INSERT_COMMENT_SAGA_API, insertComment);
+}
+
+export const deleteComment = async (idComment, dispatch, taskId) => {
+  try {
+    let { status, data } = await deleteCommentSV(idComment);
+    if (status === 200) {
+      dispatch({ type: constants.GET_TASK_DETAIL_SAGA_API, payload: taskId });
+    }
+  } catch (errors) {
+    console.log("delete comment fail", errors);
+  }
+};
+
+export const updateComment = async (idComment, valueCmt, dispatch, taskId) => {
+  try {
+    let { status, data } = await updateCommentSV(idComment, valueCmt);
+    console.log(status, data);
+    if (status === 200) {
+      dispatch({ type: constants.GET_TASK_DETAIL_SAGA_API, payload: taskId });
+    }
+  } catch (errors) {
+    console.log("delete comment fail", errors);
+  }
+};
+
+export const removeTaskAction = async (taskId, dispatch, projectId, btnCloseModal) => {
+  try {
+    let { status, data } = await removeTaskSV(taskId);
+    if (status === 200) {
+      dispatch({ type: constants.GET_DETAIL_PROJECT_SAGA_API, payload: projectId });
+      btnCloseModal.current.click();
+    }
+  } catch (errors) {
+    console.log("delete task fail", errors);
+  }
+};

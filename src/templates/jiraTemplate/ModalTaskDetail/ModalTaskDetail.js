@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import ReactHtmlParser from "react-html-parser";
 import { useDispatch, useSelector } from "react-redux";
+import { removeTaskAction } from "redux/saga/JiraSaga/actions/actions";
 import {
   GET_ALL_PRIORITY_SAGA_API,
   GET_ALL_STATUS_SAGA_API,
@@ -8,12 +9,14 @@ import {
   UPDATE_STATUS_SAGA_API,
 } from "redux/saga/JiraSaga/actions/constName";
 import Assignees from "./Assignees";
+import Comment from "./Comment";
 import Description from "./Description";
 import TimeTracking from "./TimeTracking";
 
 function ModalTaskDetail() {
   const { taskDetail } = useSelector((state) => state.ProjectReducer);
   const { statusAll, priorityAll } = useSelector((state) => state.createTaskReducer);
+  const btnCloseModal = useRef();
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -21,10 +24,9 @@ function ModalTaskDetail() {
     dispatch({ type: GET_ALL_PRIORITY_SAGA_API });
   }, []);
 
-  /*  */
-
-  // console.log(taskDetail, timeTrackingSpent, timeTrackingRemaining);
-
+  const removeTask = () => {
+    removeTaskAction(taskDetail.taskId, dispatch, taskDetail.projectId, btnCloseModal);
+  };
   /*  */
   return (
     <div
@@ -42,17 +44,21 @@ function ModalTaskDetail() {
               <i className="fa fa-bookmark" />
               <span>{taskDetail.taskName}</span>
             </div>
-            <div style={{ display: "flex" }} className="task-click">
-              <div>
-                <i className="fab fa-telegram-plane" />
-                <span style={{ paddingRight: 20 }}>Give feedback</span>
-              </div>
+            <div className="d-flex task-click">
               <div>
                 <i className="fa fa-link" />
                 <span style={{ paddingRight: 20 }}>Copy link</span>
               </div>
-              <i className="fa fa-trash-alt" style={{ cursor: "pointer" }} />
-              <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+              <span onClick={() => removeTask()}>
+                <i className="fa fa-trash-alt" style={{ cursor: "pointer" }} />
+              </span>
+              <button
+                ref={btnCloseModal}
+                type="button"
+                className="close"
+                data-dismiss="modal"
+                aria-label="Close"
+              >
                 <span aria-hidden="true">×</span>
               </button>
             </div>
@@ -64,56 +70,7 @@ function ModalTaskDetail() {
                   <p className="issue">This is an issue of type: {taskDetail.taskName}</p>
                   <Description taskDetail={taskDetail} />
 
-                  <div className="comment">
-                    <h6>Comment</h6>
-                    <div className="block-comment" style={{ display: "flex" }}>
-                      <div className="avatar">
-                        <img src="./assets/img/download (1).jfif" alt="123" />
-                      </div>
-                      <div className="input-comment">
-                        <input type="text" placeholder="Add a comment ..." />
-                        <p>
-                          <span style={{ fontWeight: 500, color: "gray" }}>Protip:</span>
-                          <span>
-                            press
-                            <span
-                              style={{
-                                fontWeight: "bold",
-                                background: "#ecedf0",
-                                color: "#b4bac6",
-                              }}
-                            >
-                              M
-                            </span>
-                            to comment
-                          </span>
-                        </p>
-                      </div>
-                    </div>
-                    <div className="lastest-comment">
-                      <div className="comment-item">
-                        <div className="display-comment" style={{ display: "flex" }}>
-                          <div className="avatar">
-                            <img src="./assets/img/download (1).jfif" alt="123" />
-                          </div>
-                          <div>
-                            <p style={{ marginBottom: 5 }}>
-                              Lord Gaben <span>a month ago</span>
-                            </p>
-                            <p style={{ marginBottom: 5 }}>
-                              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Repellendus
-                              tempora ex voluptatum saepe ab officiis alias totam ad accusamus
-                              molestiae?
-                            </p>
-                            <div>
-                              <span style={{ color: "#929398" }}>Edit</span>•
-                              <span style={{ color: "#929398" }}>Delete</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  <Comment taskDetail={taskDetail} />
                 </div>
                 <div className="col-4">
                   <div className="status">
@@ -167,7 +124,7 @@ export default ModalTaskDetail;
 function updatePriority(dispatch, e, taskDetail) {
   dispatch({
     type: UPDATE_PRIORITY_SAGA_API,
-    payload: { priorityId: +e.target.value, taskId: +taskDetail.taskId },
+    payload: { ...taskDetail, priorityId: +e.target.value },
   });
 }
 
