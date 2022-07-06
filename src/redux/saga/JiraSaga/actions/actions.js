@@ -32,6 +32,7 @@ import {
 } from "services/createTaskService";
 import { CLOSE_MODAL } from "redux/modal/modalReducer";
 import { deleteCommentSV, insertCommentSV, updateCommentSV } from "services/commentServices";
+import { history } from "App";
 
 //Quản lý các action saga
 function* login(action) {
@@ -67,9 +68,10 @@ export const getCategory = async (dispatch) => {
 function* createProject(action) {
   try {
     // yield put({ type: ShowLoading });
-    let result = yield call(() => {
+    let { status } = yield call(() => {
       return createProjectSV(action.payload);
     });
+    if (status === 200) history.push("project_management");
 
     yield delay(10);
     // yield put({ type: HideLoading });

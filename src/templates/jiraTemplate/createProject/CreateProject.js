@@ -1,42 +1,35 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { connect, useSelector, useDispatch } from "react-redux";
 import { Editor } from "@tinymce/tinymce-react";
 import { withFormik } from "formik";
 import * as Yup from "yup";
 import { getCategory } from "redux/saga/JiraSaga/actions/actions";
 import * as CONST from "redux/saga/JiraSaga/actions/constName";
+import { history } from "../../../App";
+import { usePrompt } from "hooks/usePrompt";
+
+let formIsDirty = false;
 
 function CreateProject(props) {
   const dispatch = useDispatch();
   const editorRef = useRef(null);
+
   const { category } = useSelector((state) => state.ProjectReducer);
   const { values, touched, errors, handleChange, handleBlur, handleSubmit, setFieldValue } = props;
 
-  let createPJ = () => {
-    let projectName =
-      "nếu muốn xóa thì xóa cái này nè " +
-      Math.floor(Math.random() * 1000) +
-      Math.floor(Math.random() * 100);
-    let description = "Project " + Math.floor(Math.random() * 1000);
-    let categoryId = Math.floor(Math.random() * 3) + 1;
-    let values = { projectName, description, categoryId };
-    dispatch({ type: CONST.CREATE_PROJECT_SAGA_API, payload: values });
-    return values.projectName;
-  };
+  usePrompt("Bạn có chắc chắn chuyển trang?", formIsDirty);
 
   useEffect(() => {
     getCategory(dispatch);
-    /* let timerId = setInterval(() => {
-      let kq = createPJ();
-      console.log(kq);
-    }, 3000);
+
     return () => {
-      clearInterval(timerId);
-    }; */
+      formIsDirty = false;
+    };
   }, []);
 
   const handleEditorChange = (content, editor) => {
     setFieldValue("description", content);
+    content.length > 0 ? (formIsDirty = true) : (formIsDirty = false);
   };
 
   return (
@@ -49,7 +42,10 @@ function CreateProject(props) {
           <input
             className="form-control"
             name="projectName"
-            onChange={handleChange}
+            onChange={(event) => {
+              event.target.value.length > 0 ? (formIsDirty = true) : (formIsDirty = false);
+              return handleChange(event);
+            }}
             onBlur={handleBlur}
             value={values.projectName}
           />
@@ -95,13 +91,10 @@ function CreateProject(props) {
                 {item.projectCategoryName}
               </option>
             ))}
-
-            {/* <option>4</option> */}
-            {/* <option>5</option> */}
           </select>
         </div>
 
-        <button type="submit" className="btn btn-primary">
+        <button onClick={() => (formIsDirty = false)} type="submit" className="btn btn-primary">
           Create Project
         </button>
       </form>
@@ -112,8 +105,8 @@ function CreateProject(props) {
 const handleForm = withFormik({
   // enableReinitialize: true,
   mapPropsToValues: (props) => {
-    // let categoryId = props.category[0]?.id;
-    return { projectName: "", categoryId: "1", description: "" };
+    let categoryId = props.category[0]?.id;
+    return { projectName: "", categoryId, description: "" };
   },
 
   validationSchema: Yup.object().shape({
@@ -121,7 +114,6 @@ const handleForm = withFormik({
   }),
   handleSubmit: (values, { resetForm, props }) => {
     props.dispatch({ type: CONST.CREATE_PROJECT_SAGA_API, payload: values });
-    // resetForm(true);
   },
 
   displayName: "Create Project Form",
