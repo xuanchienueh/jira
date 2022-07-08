@@ -12,6 +12,7 @@ import Main from "templates/jiraTemplate/main/Main";
 import CreateProject from "templates/jiraTemplate/createProject/CreateProject";
 import ManagementPJ from "templates/jiraTemplate/managementProject/ManagementPJ";
 import ModalComponent from "components/modal/ModalComponent";
+import Register from "pages/register/Register";
 
 export const history = createBrowserHistory({ window });
 const CustomRouter = ({ children, ...props }) => {
@@ -35,6 +36,7 @@ function App() {
           </Route>
 
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
 
           <Route element={<JiraTemplate />}>
             <Route path="jira" element={<Main />} />

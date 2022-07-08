@@ -23,7 +23,12 @@ import {
 import * as constants from "./constName";
 import { HideLoading, ShowLoading } from "redux/loading/loadingReducer";
 import store from "redux/configStore";
-import { getUserByProjectIdSV, getUserSV, loginService } from "services/userServices";
+import {
+  getUserByProjectIdSV,
+  getUserSV,
+  loginService,
+  registerService,
+} from "services/userServices";
 import {
   createTaskSV,
   getAllPrioritySV,
@@ -53,6 +58,20 @@ function* login(action) {
 }
 export function* loginTheodoi() {
   yield takeLatest(constants.LOGIN_SAGA_API, login);
+}
+
+function* register({ infoRegister }) {
+  try {
+    let { status } = yield call(() => registerService(infoRegister));
+    status === 200 ? alert("Đăng ký thành công") : alert("Đăng ký thất bại");
+    status === 200 && history.push("/login");
+  } catch (err) {
+    console.log("register fail", err.response?.data);
+  }
+}
+
+export function* registerSaga() {
+  yield takeEvery(constants.REGISTER_SAGA_API, register);
 }
 
 //

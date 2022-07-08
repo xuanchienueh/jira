@@ -4,6 +4,7 @@ import * as Yup from "yup";
 import { connect } from "react-redux";
 
 import { LOGIN_SAGA_API } from "redux/saga/JiraSaga/actions/constName";
+import { Link } from "react-router-dom";
 
 const regexEmail = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 const LoginSchema = Yup.object().shape({
@@ -72,6 +73,9 @@ class Login extends Component {
                 Login
               </button>
             </form>
+            <div className="mt-2">
+              (Nếu bạn chưa có tài khoản thì đăng ký <Link to="/register">tại đây</Link>!)
+            </div>
           </div>
         </div>
       </div>
